@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: dashboard-deployment
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: dashboard
+
+  template:
+    metadata:
+      labels:
+        app: dashboard
+
+    spec:
+      containers:
+      - name: dashboard-container
+        image: dashboard-service
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 3002
+
+        env:
+        - name: AI_SERVICE_URL
+          value: "http://ai-service:3001"
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 10

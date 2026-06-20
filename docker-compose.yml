@@ -1,0 +1,107 @@
+version: '3.8'
+
+networks:
+  vulcan-network:
+    driver: bridge
+
+services:
+  telemetry-service:
+    build: ./telemetry-service
+    ports:
+      - "3000:3000"
+    environment:
+      - REGION=india
+      - APP_ENV=production
+    networks:
+      - vulcan-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  ai-service:
+    build: ./ai-service
+    ports:
+      - "3001:3001"
+    environment:
+      - TELEMETRY_SERVICE_URL=http://telemetry-service:3000
+    networks:
+      - vulcan-network
+    depends_on:
+      telemetry-service:
+        condition: service_healthy
+
+  dashboard-service:
+    build: ./dashboard-service
+    ports:
+      - "3002:3002"
+    environment:
+      - TELEMETRY_SERVICE_URL=http://telemetry-service:3000
+      - AI_SERVICE_URL=http://ai-service:3001
+    networks:
+      - vulcan-network
+    depends_on:
+      - ai-service
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - vulcan-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3003:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - vulcan-network
+
+  vault:
+    image: hashicorp/vault:latest
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=root
+      - VAULT_ADDR=http://127.0.0.1:8200
+    networks:
+      - vulcan-network
+    command: server -dev
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - xpack.security.enabled=false
+    networks:
+      - vulcan-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.10
+    ports:
+      - "5044:5044"
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - vulcan-network
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - vulcan-network
+    depends_on:
+      - elasticsearch

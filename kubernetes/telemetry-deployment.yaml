@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: telemetry-deployment
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: telemetry
+
+  template:
+    metadata:
+      labels:
+        app: telemetry
+
+    spec:
+      containers:
+      - name: telemetry-container
+        image: telemetry-services
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 3000
+
+        env:
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: telemetry-config
+              key: APP_ENV
+        - name: REGION
+          valueFrom:
+            configMapKeyRef:
+              name: telemetry-config
+              key: REGION
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10

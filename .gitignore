@@ -1,0 +1,105 @@
+# ==========================================
+# Operating System Files
+# ==========================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==========================================
+# IDEs and Text Editors
+# ==========================================
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+*.code-workspace
+
+# JetBrains (IntelliJ, PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim and general temp files
+*~
+*.swp
+*.swo
+
+# ==========================================
+# Python Virtual Environments & Cache
+# ==========================================
+venv/
+*/venv/
+env/
+*/env/
+.venv/
+*/.venv/
+.env/
+*/.env/
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ==========================================
+# Terraform
+# ==========================================
+# Local micro-state files
+*.tfstate
+*.tfstate.*
+*.tfstate.lock.info
+*.tfvars
+*.tfvars.json
+
+# Terraform runtime files & plugins
+.terraform/
+*/.terraform/
+.terraform.lock.hcl
+*/.terraform.lock.hcl
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Crash logs
+crash.log
+
+# ==========================================
+# Environment Files & Secrets (Security)
+# ==========================================
+.env
+.env.*
+*.env
+*creds*
+*credential*
+*.pem
+*.key
+*.pub
+
+# ==========================================
+# Logs & Disaster Recovery / Backups
+# ==========================================
+*.log
+backup.txt
+kubernetes-config-backup.tar.gz
+*.tar.gz
+*.zip
+*.tgz
+
